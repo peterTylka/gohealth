@@ -2,20 +2,37 @@ import { csvDbHandler } from "@/app/lib/csv";
 import { PostCreateIssueRequest } from "@/app/types";
 
 export async function GET() {
-  let body = {};
-  let status = 200;
-  try {
-    body = await csvDbHandler.readAllIssues();
-    console.log(JSON.stringify(body));
-  } catch {
-    body = { error: "Failed to get issues" };
-    status = 500;
-  }
+  const { issues, error } = await csvDbHandler.readAllIssues();
+  const body = error ? { error } : { issues };
+  const status = error ? 500 : 200;
+
   return Response.json(body, { status });
 }
 
 export async function POST(req: Request) {
-  const partialIssue: PostCreateIssueRequest = await req.json();
-  const newIssue = await csvDbHandler.createIssue(partialIssue);
-  return Response.json({ issue: newIssue }, { status: 201 });
+  let partialIssue: PostCreateIssueRequest = {} as PostCreateIssueRequest;
+  const response400 = Response.json(
+    { error: "Missing issue fields in request" },
+    { status: 400 }
+  );
+
+  try {
+    partialIssue = await req.json();
+  } catch {
+    return response400;
+  }
+
+  if (
+    !partialIssue?.description ||
+    !partialIssue?.link ||
+    !partialIssue?.status
+  ) {
+    return response400;
+  }
+
+  const { issue, error } = await csvDbHandler.createIssue(partialIssue);
+  const body = error ? { error } : { issue };
+  const status = error ? 500 : 201;
+
+  return Response.json(body, { status });
 }

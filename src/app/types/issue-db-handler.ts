@@ -1,9 +1,15 @@
 import { IssueType, PostCreateIssueRequest } from "./issue-type";
 
 export interface IssueDbHandler {
-  readAllIssues: () => Promise<Required<IssueType>[]>;
-  createIssue: (
-    partialIssue: PostCreateIssueRequest
-  ) => Promise<Required<IssueType>>;
-  deleteIssue: (issueId: string) => void;
+  readAllIssues: () => Promise<{
+    issues: Required<IssueType>[];
+    error?: string;
+  }>;
+  createIssue: (partialIssue: PostCreateIssueRequest) => Promise<{
+    issue: Required<IssueType>;
+    error?: string;
+  }>;
+  deleteIssue: (issueId: string) => Promise<{
+    error?: string;
+  }>;
 }

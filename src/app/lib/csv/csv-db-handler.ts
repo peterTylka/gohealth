@@ -2,67 +2,78 @@ import { IssueDbHandler, IssueType } from "@/app/types";
 import { parse } from "csv-parse/sync";
 import stringify from "csv-stringify-as-promised";
 import fs from "fs";
+import { v4 as uuidv4 } from "uuid";
 
 const FILEPATH = "my.csv";
 
-// throws
-async function readAllIssues() {
-  let content: Buffer | null = null;
+async function readAllIssuesFromCsv(): Promise<{
+  issues: Required<IssueType>[];
+  error?: string;
+}> {
+  let issues: Required<IssueType>[] = [];
   try {
-    content = await fs.promises.readFile(FILEPATH);
+    const content = await fs.promises.readFile(FILEPATH);
+    issues = parse(content, {
+      columns: true,
+      bom: true,
+    });
   } catch {
-    // touch empty file
-    await writeAllData([]);
-    return [];
+    // there is a problem with csv file itself so just touch empty file
+    await writeAllIssuesIntoCsv([]);
+    return { issues, error: "Failed to read issues." };
   }
 
-  const records: Required<IssueType>[] = parse(content, {
-    columns: true,
-    bom: true,
-  });
-  console.log(`${FILEPATH} read. ${content}`);
-  return records;
+  return { issues };
 }
 
-async function writeAllData(issues: IssueType[]) {
+async function writeAllIssuesIntoCsv(issues: Required<IssueType>[]): Promise<{
+  error?: string;
+}> {
   try {
     const content = await stringify(issues, { header: true, bom: true });
     fs.writeFileSync(FILEPATH, content);
     console.log(`${FILEPATH} saved.`);
+    return {};
   } catch {
     console.log(`Issues were not saved to ${FILEPATH}.`);
+    return { error: "Failed to save issues." };
   }
 }
 
-// create
 async function createIssue(
   partialIssue: Omit<IssueType, "id" | "creationTimestamp">
-) {
+): Promise<{
+  issue: Required<IssueType>;
+  error?: string;
+}> {
   // add Id + creationTimestamp
-  let currentIssues: Required<IssueType>[] = [];
-  try {
-    currentIssues = await readAllIssues();
-  } catch {}
   const issue: Required<IssueType> = {
     ...partialIssue,
-    id: "NEW",
+    id: uuidv4(),
     creationTimestamp: new Date().toISOString(),
     parentIssueId: partialIssue.parentIssueId ? partialIssue.parentIssueId : "",
   };
-  currentIssues.push(issue);
-  await writeAllData(currentIssues);
-  return issue;
+  const { issues } = await readAllIssuesFromCsv();
+  issues.push(issue);
+  const { error } = await writeAllIssuesIntoCsv(issues);
+  return { issue, ...(error ? { error } : {}) };
 }
 
-//delete
-async function deleteIssue(issueId: string) {
-  const currentIssues = await readAllIssues();
-  const finalIssues = currentIssues.filter((issue) => issue.id !== issueId);
-  await writeAllData(finalIssues);
+async function deleteIssue(issueId: string): Promise<{
+  error?: string;
+}> {
+  const defaultError = { error: "Failed to delete issue" };
+  const { issues, error: readError } = await readAllIssuesFromCsv();
+  if (issues.length < 1 || readError) {
+    return defaultError;
+  }
+  const finalIssues = issues.filter((issue) => issue.id !== issueId);
+  const { error: writeError } = await writeAllIssuesIntoCsv(finalIssues);
+  return writeError ? defaultError : {};
 }
 
 export const csvDbHandler: IssueDbHandler = {
-  readAllIssues,
+  readAllIssues: readAllIssuesFromCsv,
   createIssue,
   deleteIssue,
 };
