@@ -67,7 +67,20 @@ async function deleteIssue(issueId: string): Promise<{
   if (issues.length < 1 || readError) {
     return defaultError;
   }
-  const finalIssues = issues.filter((issue) => issue.id !== issueId);
+
+  const finalIssues = [] as Required<IssueType>[];
+  let issueToDelete = null;
+  issues.forEach((issue) => {
+    if (issue.id === issueId) {
+      issueToDelete = issue;
+    } else {
+      finalIssues.push(issue);
+    }
+  });
+  if (!issueToDelete) {
+    return { error: "Issue not found" };
+  }
+
   const { error: writeError } = await writeAllIssuesIntoCsv(finalIssues);
   return writeError ? defaultError : {};
 }
