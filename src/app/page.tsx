@@ -1,24 +1,9 @@
 "use client";
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableColumn,
-  TableHeader,
-  TableRow,
-} from "@nextui-org/react";
 import { useEffect, useState } from "react";
 import { IssueType } from "./types";
-
-const columns = [
-  "id",
-  "parentIssueId",
-  "status",
-  "description",
-  "link",
-  "creationTimestamp",
-];
+import { CreateIssue } from "./ui/CreateIssue";
+import { IssuesTable } from "./ui/IssuesTable";
 
 export default function App() {
   const [issues, setIssues] = useState([] as unknown as Required<IssueType>[]);
@@ -39,23 +24,9 @@ export default function App() {
   }, []);
 
   return (
-    <Table aria-label="Issues table">
-      <TableHeader>
-        {columns.map((headerItem) => (
-          <TableColumn key={headerItem}>{headerItem}</TableColumn>
-        ))}
-      </TableHeader>
-      <TableBody>
-        {issues?.map((issue) => (
-          <TableRow key={issue.id}>
-            {columns.map((column) => (
-              <TableCell key={column}>
-                {issue[column as keyof IssueType]}
-              </TableCell>
-            ))}
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <>
+      <CreateIssue />
+      <IssuesTable issues={issues} />
+    </>
   );
 }
