@@ -1,4 +1,5 @@
 import {
+  Button,
   Table,
   TableBody,
   TableCell,
@@ -6,16 +7,37 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
+import { useCallback } from "react";
 import { COLUMNS } from "../constants";
 import { IssueType } from "../types";
 
-export const IssuesTable = ({ issues }: { issues: Required<IssueType>[] }) => {
+export const IssuesTable = ({
+  issues,
+  forceUpdate,
+}: {
+  issues: Required<IssueType>[];
+  forceUpdate: () => void;
+}) => {
+  const deleteIssue = useCallback(
+    (issueId: string) => {
+      fetch(`/api/issues/${issueId}`, {
+        method: "DELETE",
+      }).then((response) => {
+        if (response.ok) {
+          forceUpdate();
+        }
+      });
+    },
+    [forceUpdate]
+  );
+
   return (
     <Table aria-label="Issues table" isStriped>
       <TableHeader>
         {COLUMNS.map((headerItem) => (
           <TableColumn key={headerItem}>{headerItem}</TableColumn>
         ))}
+        <TableColumn key="additional"> </TableColumn>
       </TableHeader>
       <TableBody>
         {issues?.map((issue) => (
@@ -25,6 +47,17 @@ export const IssuesTable = ({ issues }: { issues: Required<IssueType>[] }) => {
                 {issue[column as keyof IssueType]}
               </TableCell>
             ))}
+            <TableCell key="additional">
+              <Button
+                fullWidth={false}
+                size="md"
+                onClick={() => {
+                  deleteIssue(issue.id);
+                }}
+              >
+                Delete Issue
+              </Button>
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>

@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { useForceRender } from "./hooks";
 import { IssueType } from "./types";
-import { CreateIssue } from "./ui/CreateIssue";
-import { IssuesTable } from "./ui/IssuesTable";
+import { CreateIssue, IssuesTable } from "./ui";
 
 export default function App() {
   const [issues, setIssues] = useState([] as unknown as Required<IssueType>[]);
@@ -28,7 +27,7 @@ export default function App() {
   return (
     <>
       <CreateIssue forceUpdate={forceUpdate} />
-      <IssuesTable issues={issues} />
+      <IssuesTable issues={issues} forceUpdate={forceUpdate} />
     </>
   );
 }
