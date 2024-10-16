@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useForceRender } from "./hooks";
 import { IssueType } from "./types";
 import { CreateIssue } from "./ui/CreateIssue";
 import { IssuesTable } from "./ui/IssuesTable";
 
 export default function App() {
   const [issues, setIssues] = useState([] as unknown as Required<IssueType>[]);
+  const { updateState, forceUpdate } = useForceRender();
 
   useEffect(() => {
     async function getAllIssues() {
@@ -21,11 +23,11 @@ export default function App() {
       } catch {}
     }
     getAllIssues();
-  }, []);
+  }, [updateState]);
 
   return (
     <>
-      <CreateIssue />
+      <CreateIssue forceUpdate={forceUpdate} />
       <IssuesTable issues={issues} />
     </>
   );
