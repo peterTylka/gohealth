@@ -1,4 +1,4 @@
-import { csvDbHandler } from "@/app/lib/csv";
+import { dbhandler } from "@/app/lib/dbhandler";
 
 export async function DELETE(
   req: Request,
@@ -11,7 +11,7 @@ export async function DELETE(
     );
   }
 
-  const { error } = await csvDbHandler.deleteIssue(issueid);
+  const { error } = await dbhandler.deleteIssue(issueid);
   const body = error ? { error } : {};
   const status = error ? 500 : 200;
 

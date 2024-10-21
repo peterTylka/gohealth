@@ -1,8 +1,8 @@
-import { csvDbHandler } from "@/app/lib/csv";
+import { dbhandler } from "@/app/lib/dbhandler";
 import { PostCreateIssueRequest } from "@/app/types";
 
 export async function GET() {
-  const { issues, error } = await csvDbHandler.readAllIssues();
+  const { issues, error } = await dbhandler.readAllIssues();
   const body = error ? { error } : { issues };
   const status = error ? 500 : 200;
 
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     return response400;
   }
 
-  const { issue, error } = await csvDbHandler.createIssue(partialIssue);
+  const { issue, error } = await dbhandler.createIssue(partialIssue);
   const body = error ? { error } : { issue };
   const status = error ? 500 : 201;
 
