@@ -2,13 +2,12 @@
 
 ## TODO / Improvements
 
-- delete issue from entered input
 - FE tests
-- FE error handling - e.g on failed create / delete show message
+- FE error handling - e.g on failed create / delete snackbar message
 - maybe spinners
 - polish UI
 - pagination
-- code cleanup / reafactor ?
+- code cleanup / refactor ?
 
 ## Using Docker
 

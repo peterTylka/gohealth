@@ -62,7 +62,7 @@ async function createIssue(
 async function deleteIssue(issueId: string): Promise<{
   error?: string;
 }> {
-  const defaultError = { error: "Failed to delete issue" };
+  const defaultError = { error: `Failed to delete issue ${issueId}` };
   const { issues, error: readError } = await readAllIssuesFromCsv();
   if (issues.length < 1 || readError) {
     return defaultError;
@@ -78,7 +78,7 @@ async function deleteIssue(issueId: string): Promise<{
     }
   });
   if (!issueToDelete) {
-    return { error: "Issue not found" };
+    return { error: `Issue ${issueId} was not found` };
   }
 
   const { error: writeError } = await writeAllIssuesIntoCsv(finalIssues);

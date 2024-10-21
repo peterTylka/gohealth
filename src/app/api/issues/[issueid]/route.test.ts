@@ -18,7 +18,7 @@ describe("DELETE issue", () => {
     const body = await response.json();
 
     expect(response.status).toBe(500);
-    expect(body).toEqual({ error: "Issue not found" });
+    expect(body).toEqual({ error: "Issue abc was not found" });
   });
 
   it("should return 204 on existing issue", async () => {

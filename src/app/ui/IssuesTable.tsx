@@ -9,8 +9,8 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
-import { useCallback } from "react";
 import { COLUMNS } from "../constants";
+import { useDeleteIssue } from "../hooks";
 import { IssueType } from "../types";
 
 export const IssuesTable = ({
@@ -20,18 +20,7 @@ export const IssuesTable = ({
   issues: Required<IssueType>[];
   forceUpdate: () => void;
 }) => {
-  const deleteIssue = useCallback(
-    (issueId: string) => {
-      fetch(`/api/issues/${issueId}`, {
-        method: "DELETE",
-      }).then((response) => {
-        if (response.ok) {
-          forceUpdate();
-        }
-      });
-    },
-    [forceUpdate]
-  );
+  const { deleteIssue } = useDeleteIssue(forceUpdate);
 
   return (
     <Table aria-label="Issues table" isStriped>
